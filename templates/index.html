@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محضر نشاط</title>
+<link rel="icon" type="image/x-icon" href="https://www.mahdi-platform.org/green_512.svg">
+<!-- Choices.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+<style>
+    body {
+        font-family: sans-serif;
+        background: #fafafa;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+    .container {
+        max-width: 700px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        margin-top: 30px;
+    }
+    h1 {
+        text-align: center;
+        color: #444;
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        margin-top: 12px;
+        font-weight: bold;
+    }
+    input, select, button {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+    select {
+        width: 50%;
+    }
+    button {
+        cursor: pointer;
+    }
+    .paragraph-item {
+        display: flex;
+        gap: 5px;
+        margin-top: 5px;
+    }
+    .paragraph-item input {
+        flex: 1;
+    }
+    .paragraph-item button {
+        flex: 0 0 auto;
+        padding: 5px 10px;
+    }
+    .add-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+    }
+    .remove-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        width: 30px;
+    }
+    .submit-btn {
+        background: #28a745;
+        color: white;
+        margin-top: 15px;
+        border: none;
+    }
+
+    /* Fix dropdown arrow overlap in RTL */
+    .choices[data-type*="select-one"]::after {
+        left: 11px;
+        right: auto;
+    }
+    .choices[data-type*="select-one"] .choices__inner {
+        padding-right: 0.75em;
+    }
+
+    /* Hidden inputs exactly behind selects */
+    .hidden-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        pointer-events: none;
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+
+    .select-wrapper {
+    position: relative;
+    width: 102.5%; /* ensure full width */
+    }
+
+    .select-wrapper .choices {
+        width: 100% !important;
+    }
+
+    .select-wrapper .choices__inner {
+        box-sizing: border-box; /* include padding/border in width */
+    }
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.upload-box {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 94%;
+}
+
+input[type="file"] {
+  margin: 15px auto;
+  padding: 12px;
+  border: 2px dashed #bbb;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+}
+
+input[type="file"]:hover {
+  border-color: #007bff;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="logo">
+</div>
+
+<h1>محضر نشاط</h1>
+
+<form method="POST", enctype="multipart/form-data">
+    <label>التاريخ:</label>
+    <input type="date" name="date" value="{{ today }}" required>
+
+    <label>الفرقة:</label>
+    <div class="select-wrapper">
+        <input type="text" class="hidden-input" id="group_hidden" required>
+        <select id="group" name="group">
+            <option value="">اختر</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة البراعم</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة الاشبال</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة الكشافة</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة الجوالة</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/امانة التدريب</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/امانة السر</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/امانة الفنون</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/امانة الموارد البشرية</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/امانة الاعلام</option>
+            <option>فوج الامام الباقر (ع)/ تفاحتا/فرقة الخدمة المجتمعية</option>
+        </select>
+        
+    </div>
+
+    <label>نوع النشاط:</label>
+    <div class="select-wrapper">
+        <input type="text" class="hidden-input" id="activity_type_hidden" required>
+        <select id="activity_type" name="activity_type">
+            <option value="">اختر</option>
+            <option>محاضرة</option>
+            <option>تامين إحتياجات طبية</option>
+            <option>حضور سيرك</option>
+            <option>درس كشفي</option>
+            <option>مسابقة قرآنية</option>
+            <option>دورة شارة تحضيرية_كشافة</option>
+            <option>نشاط التثبت من صحة الصلاة</option>
+            <option>تصوير فيديو كليب</option>
+            <option>زيارة معرض فني</option>
+            <option>دورة الصلاة الإبتدائية (يا بني اقم الصلاة)</option>
+            <option>تجمُّع كشفي</option>
+            <option>دورة شارة تحضيرية_دليلات</option>
+            <option>بروفة احتفال</option>
+            <option>نشاط Paintball</option>
+            <option>برنامج لصلاة الجماعة</option>
+            <option>المحترف الفني</option>
+            <option>دورة انصار (2) (للتحضيري 2)</option>
+            <option>نشاط شطرنج</option>
+            <option>عزف في مسيرة تشييع</option>
+            <option>نشاط تعليم فن الخياطة والتطريز</option>
+            <option>تدريب على عرض موسيقي</option>
+            <option>نشاط حكواتي</option>
+            <option>رحلة</option>
+            <option>عيادة وزيارة مرضى</option>
+            <option>المجلس اليومي العاشورائي</option>
+            <option>نادي فنون ومواهب</option>
+            <option>رحيل كشفي</option>
+            <option>عزف في مسيرة</option>
+            <option>نادي الإنشاد</option>
+            <option>اداء صلاة الصبح في المنزل للاخوات</option>
+            <option>نادي قرآني</option>
+            <option>دورة احكام الاستهلال</option>
+            <option>نادي الحكواتي</option>
+            <option>نشاط تحقيق مطالب</option>
+            <option>تنظيم نشاط استخدام الفلين</option>
+            <option>جلسة حفظ قرآنية</option>
+            <option>دورة إسعافات اوليَّة</option>
+            <option>نشاط حفر على المرايا</option>
+            <option>نشاط إطلاق مناطيد</option>
+            <option>مبيت في الخلاء</option>
+            <option>دورة مسرح خيال الظل</option>
+            <option>دورة عميد (ة) فوج</option>
+            <option>دورة تعليم الفروسية</option>
+            <option>درس حول الالغام</option>
+            <option>إعطاء دروس لتقوية التلاميذ</option>
+            <option>زيارة اجتماعية</option>
+            <option>درس بيئي</option>
+            <option>حفل تكريم</option>
+            <option>حفل ترفيع وانتقال</option>
+            <option>مسابقة دينية</option>
+            <option>ورش بنت الرسالة</option>
+            <option>مسابقة هاتفية / اتصال</option>
+            <option>ورشة بيئية</option>
+            <option>نشاط تعليم فن التمثيل</option>
+            <option>زيارة عوائل المجاهدين</option>
+            <option>ايقاظ الصائمين على السحور</option>
+            <option>ورشة ثقافية تربوية</option>
+            <option>بث مادة إعلامية</option>
+            <option>ورشة فنية</option>
+            <option>الحفل السنوي للجمعية</option>
+            <option>مرسم</option>
+            <option>زيارة اهالي الكشفيين</option>
+            <option>لقاء القادة والقائدات</option>
+            <option>دورة مبادئ الموسيقى مستوى ثاني</option>
+            <option>دورة كرة سلة</option>
+            <option>نشاط A.T.V</option>
+            <option>تاهيل إسعافات اوليَّة</option>
+            <option>اجتماع مجلس شرف الفرقة</option>
+            <option>نزهة</option>
+            <option>دفع ديون وتامين قروض</option>
+            <option>تنظيم نشاط للرسومات</option>
+            <option>دورة تشبيك</option>
+            <option>عزف في فقرة المراسم الرسميّة للتشييع</option>
+            <option>نشاط لذوي الاحتياجات الخاصة</option>
+            <option>نشاط إطلاق بالونات في الفضاء</option>
+            <option>تسجيل نشيد</option>
+            <option>تنفيذ مراسم الحج</option>
+            <option>إحتفال</option>
+            <option>تامين وتوزيع مساعدات مالية</option>
+            <option>رحلة علمية</option>
+            <option>مسير كشفي</option>
+            <option>تدريب كرة قدم</option>
+            <option>زيارة معرض علمي</option>
+            <option>نشاط إضاءة شموع</option>
+            <option>إقامة معرض فني</option>
+            <option>نشاط مشاية</option>
+            <option>لقاء لاهالي الكشفيين</option>
+            <option>تدريب على عرض تمثيلي</option>
+            <option>عرض إنشادي</option>
+            <option>تجربة اداء لعمل فني</option>
+            <option>نشاط رابيل</option>
+            <option>حملة نظافة</option>
+            <option>دورة ممهدون (4)</option>
+            <option>مسابقة في التصوير</option>
+            <option>درس غذائي</option>
+            <option>فطور صباحي</option>
+            <option>مشاركة إنشادية في حفل لجهة خارجيّة</option>
+            <option>دورة كرة طاولة</option>
+            <option>دورة الصلاة المعمقة (النبع الفوار)</option>
+            <option>نشاط لرياضة الكاراتيه</option>
+            <option>إنشاد فقرة داخل إحتفال الفوج</option>
+            <option>دورة لفائف ورقية</option>
+            <option>جمع تبرعات</option>
+            <option>دروس نغم وصوت</option>
+            <option>العاب إلكترونية</option>
+            <option>دورة مدرب تشبيك</option>
+            <option>توزيع جوائز</option>
+            <option>نشاط لتعليم الوضوء</option>
+            <option>إنشاد في إحتفال كشفي لعموم الناس</option>
+            <option>خدمة مجلس عزاء</option>
+            <option>تصوير مشهدية فنية</option>
+            <option>استضافة مكتبة مهدي المتجولة</option>
+            <option>صرخات كشفية</option>
+            <option>نشاط لمكافحة المخدِّرات</option>
+            <option>دورة جنود</option>
+            <option>نشاط مشاهدة بانوراما</option>
+            <option>تامين وتوزيع كسوة العيد</option>
+            <option>برنامج للاستهلال</option>
+            <option>دورة مُكمِّل ثقافية</option>
+            <option>تامين وتوزيع مساعدات عينية</option>
+            <option>المساعدة في نشاط زراعي</option>
+            <option>ورشة علمية</option>
+            <option>حفل مؤاخاة</option>
+            <option>نشاط تصنيع الحلوى</option>
+            <option>نشاط حول تدوير النفايات</option>
+            <option>تصوير فيديو تعليمي</option>
+            <option>حفل ترفيع الجوالة</option>
+            <option>ورشة تعريفة بمنصة مهدي للانشطة الكشفية</option>
+            <option>نشاط عرض وبيع منتوجات</option>
+            <option>دورة امين المحاسبة والتجهيز</option>
+            <option>دورة قائد (ة) تدريب</option>
+            <option>عرض فيلم</option>
+            <option>درس ثقافي وديني</option>
+            <option>دورة تعليم صيانة الكومبيوتر</option>
+            <option>زيارة روضات الشهداء والمؤمنين</option>
+            <option>إفطار للايتام</option>
+            <option>دورة تعليم برمجيَّات الكومبيوتر</option>
+            <option>مباراة جري وركض</option>
+            <option>دورة رئيس (ة) سداسي (ة)</option>
+            <option>مخيم المهارات الكشفية (دورة)</option>
+            <option>دورة انصار (3) (للتحضيري 3)</option>
+            <option>دورة سينوغرافيا</option>
+            <option>نشاط اشغال يدوية</option>
+            <option>اداء صلاة الصبح</option>
+            <option>دورة ناشط شبابي</option>
+            <option>دورة قصص ومواعظ قرآنية</option>
+            <option>تنظيم نشاط صناعة المجسمات</option>
+            <option>زيارة متمولين</option>
+            <option>إضاءة شموع</option>
+            <option>دورة امين (ة) الإعلام</option>
+            <option>كرمس</option>
+            <option>زيارات تهنئة بالافراح</option>
+            <option>دورة احكام الصوم</option>
+            <option>تامين وتوزيع هدايا</option>
+            <option>دورة قائد (ة) معززة</option>
+            <option>حفل شعر</option>
+            <option>إحتفال تكليف الفتية</option>
+            <option>مباراة كرة سلة</option>
+            <option>نشاط رياضي</option>
+            <option>اداء صلاة الوحشة</option>
+            <option>رحلة وطنية</option>
+            <option>عزف استقبال الشخصيات على مدخل إحتفال</option>
+            <option>توزيع منشورات</option>
+            <option>دورة امين (ة) الانشطة الثقافية</option>
+            <option>زيارة مراكز عمل</option>
+            <option>نادي التطريز</option>
+            <option>نشاط اكتشاف مواهب</option>
+            <option>نشاط تعليم الصلاة</option>
+            <option>إذاعة بيان ودعوة</option>
+            <option>نشاط عزف</option>
+            <option>تصوير فيلم قصير</option>
+            <option>دورة حكواتي</option>
+            <option>العاب خفة</option>
+            <option>توزيع دعوات</option>
+            <option>اللقاء التحضيري الصيفي</option>
+            <option>دورة شارة تحضيرية_مرشدات</option>
+            <option>نشاط ترشيد الطاقة</option>
+            <option>عرض فلاشات على الستلايت</option>
+            <option>مشاهدة عرض مسرحي</option>
+            <option>برنامج صلاة الصبح ودعاء العهد</option>
+            <option>رفع علم</option>
+            <option>زيارة مقامات مقدسة</option>
+            <option>بناء مخيم</option>
+            <option>نادي الرسم</option>
+            <option>حفل تكريس</option>
+            <option>دورة التجسيم</option>
+            <option>دورة إعداد رادود الحسيني</option>
+            <option>دورة عريف (ة) طليعة (ة)</option>
+            <option>دورة مبادئ الموسيقى مستوى اول</option>
+            <option>عرض مسرحي وتمثيلي</option>
+            <option>تاهيل منزل</option>
+            <option>دورة حفظ القرآن الكريم (إقرا وارقَ)</option>
+            <option>تامين فرص عمل لمعيلي الاسر المحرومة</option>
+            <option>دورة ممهدون (1)</option>
+            <option>دورة ممهدون (3)</option>
+            <option>دورة شارة تحضيرية_براعم</option>
+            <option>نادي مسرح</option>
+            <option>مباراة كرة قدم</option>
+            <option>مهرجان للالعاب</option>
+            <option>ورشة اجتماعية</option>
+            <option>تخييم نهاري</option>
+            <option>نشاط تعليم الإنشاد</option>
+            <option>دورة نغم وصوت</option>
+            <option>امسية قرآنية</option>
+            <option>مجلس لطم</option>
+            <option>حملة تبرع بالدم</option>
+            <option>نشاط تعريفي بمضار المخدِّرات</option>
+            <option>ورشة عمل إدارية وتنظيمية</option>
+            <option>خدمة في احتفال</option>
+            <option>زيارة عوائل الاسرى</option>
+            <option>زيارة فعاليات</option>
+            <option>دورة إعداد حقيبة تدريبية</option>
+            <option>برنامج سحور</option>
+            <option>دورة انصار (1) (للتحضيري 1)</option>
+            <option>دورة مدرب (ة) معززة</option>
+            <option>دورة تقنيات</option>
+            <option>لطمية</option>
+            <option>حاجز محبَّة</option>
+            <option>زيارة شكر وتقدير</option>
+            <option>دورة قراء عزاء للناشئة</option>
+            <option>دورة شارة تحضيرية_جوالة</option>
+            <option>نشاط تدريب مرصوص</option>
+            <option>وقفة تضامنية</option>
+            <option>دورة تعليم السباحة</option>
+            <option>حملة تزيين</option>
+            <option>دورة التجويد الابتدائية (طريق الخاشعين)</option>
+            <option>نشاط تعريفي بمضار التدخين</option>
+            <option>يوم رياضي</option>
+            <option>اللقاء التحضيري العاشورائي</option>
+            <option>دورة التلاوة الصحيحة (سبيل الذاكرين)</option>
+            <option>ورشة صحية</option>
+            <option>امسية موسيقية</option>
+            <option>نشاط معاينات طبية</option>
+            <option>دورة كرة طائرة</option>
+            <option>حافلة متنقلة</option>
+            <option>دورة انصار (4)</option>
+            <option>رسائل تعزية</option>
+            <option>زيارات تعزية بوفاة</option>
+            <option>نشاط تعليم فنون عامة</option>
+            <option>تنفيذ مسابقة نجمات البتول</option>
+            <option>ورشة صحة نفسية</option>
+            <option>دورة شارة تحضيرية معززة</option>
+            <option>تامين مسكن لحالات مستضعفة</option>
+            <option>نشاط لرياضة الفروسية</option>
+            <option>زيارة مؤسسات</option>
+            <option>لقاء عام</option>
+            <option>ندوة</option>
+            <option>توقيع كتاب</option>
+            <option>غرس الزهور</option>
+            <option>دورة تعليم الغطس</option>
+            <option>درس تفسير قرآن</option>
+            <option>ورشة تعليم الصلاة</option>
+            <option>دورة مفاهيم قرآنية</option>
+            <option>دورة صناعة الدمى</option>
+            <option>التدريب الدوري الإنشادي</option>
+            <option>دورة ممهدون (5)</option>
+            <option>مسيرة لطم</option>
+            <option>تشييع عام</option>
+            <option>إفطار لعموم الناس</option>
+            <option>ورشة كشفية</option>
+            <option>التدريب الدوري المسرحي</option>
+            <option>دورة مدرب (ة)</option>
+            <option>جلسة جماعات صغيرة</option>
+            <option>تخييم ليلي</option>
+            <option>زيارة عالم دين</option>
+            <option>برنامج لقاء وطني</option>
+            <option>دورة دورة مدرب طنبور</option>
+            <option>دورة مراسل ميداني</option>
+            <option>عزف النشيدين في إحتفال</option>
+            <option>نشاط بلياردو</option>
+            <option>دورة انتاج فني</option>
+            <option>التدريب  الدوري الموسيقي</option>
+            <option>دورة شارة تحضيرية_زهرات</option>
+            <option>سهرة دينية</option>
+            <option>سهرة نار</option>
+            <option>مضيف</option>
+            <option>مباراة كرة طائرة</option>
+            <option>زيارة مكتبة</option>
+            <option>اداء صلاة الايات</option>
+            <option>دورة تحريك الدمى</option>
+            <option>دورة إعداد ممثل</option>
+            <option>دورة رائد (ة) رهط (ة)</option>
+            <option>اختتام دورة</option>
+            <option>نشاط لصناعة البانوراما</option>
+            <option>دورة مدرِّب مرصوص</option>
+            <option>محو امية وطنية</option>
+            <option>ورشة اعلامية</option>
+            <option>توزيع إفادات الاربعون صباحًا</option>
+            <option>دورة امين (ة) الفنون والمواهب</option>
+            <option>نشاط ترفيهي للاطفال المستضعفين</option>
+            <option>تشييع شهيد</option>
+            <option>عزف في مراسم استقبال شخصيّة رسميّة</option>
+            <option>تنفيذ مراسم رفع راية عاشورائية</option>
+            <option>استقبال وفد</option>
+            <option>تجربة اداء للانتساب لفرقة فنية</option>
+            <option>إفطار للكشفيين</option>
+            <option>نشاط تصوير</option>
+            <option>مباهج العيد</option>
+            <option>توزيع بطاقات معايدة</option>
+            <option>هدايا للاطفال المستضعفين</option>
+            <option>حفل منح اوسمة</option>
+            <option>نشاط Carting</option>
+            <option>نشاط تلقيح للاطفال</option>
+            <option>برنامج مجلس عزاء</option>
+            <option>نشاط تعليم القرآن</option>
+            <option>برنامج وليمة ومادبة</option>
+            <option>دورة ناشط اجتماعي</option>
+            <option>خدمة كبار السن</option>
+            <option>عرض تلفزيوني</option>
+            <option>ختمية قرآنية</option>
+            <option>درس صحي</option>
+            <option>برنامج عبادي وروحي</option>
+            <option>دورة كرة قدم</option>
+            <option>عزف في مناسبة وفاة</option>
+            <option>لقاء تعريفي بورش ومشاريع الجمعية</option>
+            <option>مباراة فنية</option>
+            <option>تنفيذ حفل نجمات البتول</option>
+            <option>مهرجان رياضي</option>
+            <option>نشاط تنظيف وترتيب</option>
+            <option>نشاط سميليتر</option>
+            <option>لقاء العمداء والعميدات</option>
+            <option>مباراة ثقافية</option>
+            <option>دورة ممهدون (2)</option>
+            <option>إفطار للفقراء والمساكين</option>
+            <option>نشاط لمكافحة التدخين</option>
+            <option>نادي الموسيقى</option>
+            <option>إحتفال تكليف الفتيات</option>
+            <option>نشاط تعليم لغة اجنبية</option>
+            <option>مهرجان تحدي المواهب</option>
+            <option>دورة امين (ة) السر</option>
+            <option>دورة امين (ة) شؤون الافراد</option>
+            <option>تعليق إعلاميات</option>
+            <option>استعراض كشفي</option>
+            <option>حلقة تلاوة قرآنية</option>
+            <option>دورة شارة تحضيرية_اشبال</option>
+            <option>دورة تعليم موسيقى</option>
+            <option>نشاط تعليم فن التصوير</option>
+            <option>نشاط هيئة لطم</option>
+            <option>درس وطني</option>
+            <option>اداء صلاة العيد</option>
+            <option>تامين لوازم مسكن</option>
+            <option>سهرة سمر</option>
+            <option>العاب كشفية</option>
+            <option>زيارة جرحى</option>
+            <option>نشاط إطفاء حريق</option>
+            <option>دورة قائد (ة)</option>
+            <option>لقاء اعضاء المفوضيات</option>
+            <option>إعتكاف</option>
+            <option>سباق دراجات هوائية</option>
+            <option>تدريب على عرض إنشاد</option>
+            <option>تدريب للفرقة الفنية</option>
+            <option>توزيع حلوى</option>
+            <option>نشاط تشجير</option>
+            <option>مشروع المصلي في المنزل</option>
+            <option>كفالة ايتام</option>
+            <option>مسيرة استعراضية</option>
+            <option>دورة شبكة المراسلين</option>
+            <option>برنامج مطالعة</option>
+            <option>دورة المقامات</option>
+            <option>مساعدة في قطاف المحصول</option>
+            <option>دورة كتابة السيناريو</option>
+            <option>زيارة عوائل الشهداء</option>
+            <option>نشاط سباحة</option>
+            <option>دورة انصار</option>
+            <option>إعداد مادة إعلامية</option>
+            <option>تنظيم حفل إنشادي خاص بالفرقة</option>
+            <option>توضيب حصص تموينية</option>
+        </select>
+        
+    </div>
+
+    <label>وقت التنفيذ:</label>
+    <div class="select-wrapper">
+        <input type="text" class="hidden-input" id="time_hidden" required>
+        <select id="time" name="time">
+            <option value="">اختر</option>
+            <option>قبل الظهر</option>
+            <option>بعد الظهر</option>
+            <option>مساءً</option>
+            <option>فجراً</option>
+            <option>كامل اليوم</option>
+        </select>
+    </div>
+
+    <label>مناسبة النشاط (اختياري):</label>
+    <div class="select-wrapper">
+        <input type="text" class="hidden-input" id="occasion_hidden" required>
+        <select id="occasion" name="occasion">
+            <option>لا يوجد</option>
+            <option>ولادة الرسول(ص) وحفيده الصادق(ع) (يوم القائد)</option>
+            <option>شهادة الرسول(ص) وحفيديه المجتبى(ع) والرضا(ع)</option>
+            <option>ولادة أمير المؤمنين(ع)</option>
+            <option>شهادة أمير المؤمنين(ع)</option>
+            <option>ولادة السيدة الزهراء(ع) والإمام الخميني(قده) (يوم القائدة)</option>
+            <option>شهادة السيدة الزهراء(ع)</option>
+            <option>ولادة الإمام المجتبى(ع)</option>
+            <option>ولادة الإمامين الحسين(ع) والسجاد(ع) وأبو الفضل العباس(ع)</option>
+            <option>مناسبة الإحياء العاشورائي</option>
+            <option>شهادة الإمام السجاد(ع)</option>
+            <option>ولادة الإمامين الباقر(ع) والهادي(ع)</option>
+            <option>شهادة الإمام الباقر(ع)</option>
+            <option>شهادة الإمام الصادق(ع)</option>
+            <option>ولادة الإمام الكاظم(ع)</option>
+            <option>شهادة الإمام الكاظم(ع)</option>
+            <option>ولادة الإمام الرضا(ع)</option>
+            <option>ولادة الإمام الجواد(ع)</option>
+            <option>شهادة الإمام الجواد(ع)</option>
+            <option>شهادة الإمام الهادي(ع)</option>
+            <option>ولادة الإمام العسكري(ع)</option>
+            <option>شهادة الإمام العسكري(ع)</option>
+            <option>ولادة الإمام المهدي(عج) (عيد الجمعية)</option>
+            <option>ولادة السيدة زينب(ع) (يوم الدليلة)</option>
+            <option>وفاة السيدة زينب(ع)</option>
+            <option>أربعين الإمام الحسين(ع)</option>
+            <option>ولادة السيدة فاطمة المعصومة</option>
+            <option>شهادة السيدة فاطمة المعصومة</option>
+            <option>ولادة علي الأكبر (ع) - يوم الشباب</option>
+            <option>المبعث النبوي الشريف</option>
+            <option>إحياء شهر رمضان</option>
+            <option>ليالي القدر</option>
+            <option>يوم القدس العالمي</option>
+            <option>عيد الفطر السعيد</option>
+            <option>أسبوع الأسرة</option>
+            <option>عيد الأضحى المبارك</option>
+            <option>عيد الغدير الأغر (يوم الجوال)</option>
+            <option>ولادة النبي عيسى(ع)</option>
+            <option>رأس السنة الميلادية</option>
+            <option>يوم المقاومة العالمي ( 3 ك2 )</option>
+            <option>ذكرى انتصار الثورة الاسلامية</option>
+            <option>ذكرى الشهداء القادة (أسبوع المقاومة)</option>
+            <option>يوم الشهيد</option>
+            <option>عيد المقاومة والتحرير (25 أيار)</option>
+            <option>انتصار تموز 2006</option>
+            <option>عيد التحرير الثاني ( 28 آب )</option>
+            <option>عدوان نيسان 1996</option>
+            <option>عدوان تموز 1993</option>
+            <option>عيد الأسرى والمحرَّرين</option>
+            <option>وفاة الإمام الخميني(قده)</option>
+            <option>عيد الأم</option>
+            <option>عيد الطفل</option>
+            <option>عيد المعلم</option>
+            <option>عيد العمال</option>
+            <option>عيد الشهداء</option>
+            <option>عيد الاستقلال</option>
+            <option>وفاة أم البنين (ع)</option>
+            <option>عيد الجيش</option>
+            <option>ذكرى شهادة الامين العام سيد شهداء الأمة</option>
+        </select>
+    </div>
+
+    <label>المكان:</label>
+    <input type="text" name="place" required>
+
+    <label>عدد القادة:</label>
+    <input type="number" name="leaders" required min="0">
+
+    <label>عدد الكشفيين:</label>
+    <input type="number" name="scouts" required min="0">
+
+    <label>عدد غير الكشفيين (اختياري):</label>
+    <input type="number" name="non_scouts" min="0">
+
+    <label>الفقرات المنفذة:</label>
+    <div id="paragraphs"></div>
+    <button type="button" class="add-btn" onclick="addParagraph()">+ إضافة فقرة</button>
+
+    <label>التكلفة:</label>
+    <input type="number" name="cost" min="0">
+
+    <div class="upload-box">
+        <label for="files">ارفع الفواتير (اختياري):</label>
+        <input type="file" id="files" name="files[]" multiple>
+    </div>
+
+    <button type="submit" class="submit-btn">إرسال</button>
+</form>
+<div class="footer">
+    فوج الإمام الباقر<sup>(ع)</sup> - تفاحتا - أمانة السّر
+</div>
+<div class="footer">
+    جميع الحقوق محفوظة © 2025
+</div>
+
+</div>
+
+<!-- Choices.js -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize Choices.js
+    const groupChoice = new Choices("#group", { searchEnabled: true, placeholder: true, searchPlaceholderValue: "ابحث...", shouldSort: false});
+    const activityChoice = new Choices("#activity_type", { searchEnabled: true, shouldSort: false });
+    const timeChoice = new Choices("#time", { searchEnabled: true, shouldSort: false });
+    const occasionChoice = new Choices("#occasion", { searchEnabled: true, shouldSort: false });
+
+    // Hidden inputs
+    const groupHidden = document.getElementById("group_hidden");
+    const activityHidden = document.getElementById("activity_type_hidden");
+    const timeHidden = document.getElementById("time_hidden");
+    const occasionHidden = document.getElementById("occasion_hidden");
+
+    // Sync values
+    const syncHidden = (choice, hidden) => {
+        choice.passedElement.element.addEventListener("change", () => {
+            hidden.value = choice.getValue(true) || "";
+        });
+        hidden.value = choice.getValue(true) || "";
+    }
+
+    syncHidden(groupChoice, groupHidden);
+    syncHidden(activityChoice, activityHidden);
+    syncHidden(timeChoice, timeHidden);
+    syncHidden(occasionChoice, occasionHidden);
+
+    // Paragraphs
+    function addParagraph(value = "") {
+        const container = document.getElementById("paragraphs");
+        const div = document.createElement("div");
+        div.className = "paragraph-item";
+        div.innerHTML = `
+            <input type="text" name="paragraphs[]" value="${value}" required>
+            <button type="button" class="remove-btn" onclick="removeParagraph(this)">×</button>
+        `;
+        container.appendChild(div);
+    }
+    function removeParagraph(btn) {
+        btn.parentElement.remove();
+    }
+    window.addParagraph = addParagraph;
+    window.removeParagraph = removeParagraph;
+
+    // Start with one paragraph
+    addParagraph();
+});
+</script>
+
+</body>
+</html>
+
