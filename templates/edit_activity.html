@@ -158,13 +158,13 @@ input[type="file"]:hover {
 
 <form method="POST", enctype="multipart/form-data">
     <label>التاريخ:</label>
-    <input type="date" name="date" value="{{ today }}" required>
+    <input type="date" name="date" value="{{ activity[1] }}" required>
 
     <label>الفرقة:</label>
     <div class="select-wrapper">
-        <input type="text" class="hidden-input" id="group_hidden" required>
+        <input type="text" class="hidden-input" id="group_hidden" value="{{ activity[2] }}" required>
         <select id="group" name="group">
-            <option value="">اختر</option>
+            <option value="{{ activity[2] }}">{{ activity[2] }}</option>
             <option>فوج الامام الباقر (ع)/ تفاحتا</option>
             <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة البراعم</option>
             <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة الاشبال</option>
@@ -182,9 +182,9 @@ input[type="file"]:hover {
 
     <label>نوع النشاط:</label>
     <div class="select-wrapper">
-        <input type="text" class="hidden-input" id="activity_type_hidden" required>
+        <input type="text" class="hidden-input" id="activity_type_hidden" value="{{ activity[3] }}" required>
         <select id="activity_type" name="activity_type">
-            <option value="">اختر</option>
+            <option value="{{ activity[3] }}">{{ activity[3] }}</option>
             <option>محاضرة</option>
             <option>تامين إحتياجات طبية</option>
             <option>حضور سيرك</option>
@@ -558,9 +558,9 @@ input[type="file"]:hover {
 
     <label>وقت التنفيذ:</label>
     <div class="select-wrapper">
-        <input type="text" class="hidden-input" id="time_hidden" required>
+        <input type="text" class="hidden-input" id="time_hidden" value="{{ activity[4] }}" required>
         <select id="time" name="time">
-            <option value="">اختر</option>
+            <option value="{{ activity[4] }}">{{ activity[4] }}</option>
             <option>قبل الظهر</option>
             <option>بعد الظهر</option>
             <option>مساءً</option>
@@ -571,8 +571,9 @@ input[type="file"]:hover {
 
     <label>مناسبة النشاط (اختياري):</label>
     <div class="select-wrapper">
-        <input type="text" class="hidden-input" id="occasion_hidden" required>
+        <input type="text" class="hidden-input" id="occasion_hidden" value="{{ activity[5] }}" required>
         <select id="occasion" name="occasion">
+            <opttion>{{ activity[5] }}</opttion>
             <option>لا يوجد</option>
             <option>ولادة الرسول(ص) وحفيده الصادق(ع) (يوم القائد)</option>
             <option>شهادة الرسول(ص) وحفيديه المجتبى(ع) والرضا(ع)</option>
@@ -636,45 +637,40 @@ input[type="file"]:hover {
     </div>
 
     <label>المكان:</label>
-    <input type="text" name="place" required>
+    <input type="text" name="place" value="{{ activity[6] }}" required>
 
     <label>عدد القادة:</label>
-    <input type="number" name="leaders" required min="0">
+    <input type="number" name="leaders" value="{{ activity[7] }}" required min="0">
 
     <label>عدد الكشفيين:</label>
     <div id="scouts_container">
         <div>
             <label for="jawele">جوالة</label>
-            <input type="number" id="jawele" name="jawele" min="0" value="0" onfocus="this.select()">
+            <input type="number" id="jawele" name="jawele" min="0" value="{{ activity[8] }}" onfocus="this.select()">
         </div>
         <div>
             <label for="kashefe">كشافة</label>
-            <input type="number" id="kashefe" name="kashefe" min="0" value="0" onfocus="this.select()">
+            <input type="number" id="kashefe" name="kashefe" min="0" value="{{ activity[9] }}" onfocus="this.select()">
         </div>
         <div>
             <label for="ashbele">أشبال</label>
-            <input type="number" id="ashbele" name="ashbele" min="0" value="0" onfocus="this.select()">
+            <input type="number" id="ashbele" name="ashbele" min="0" value="{{ activity[10] }}" onfocus="this.select()">
         </div>
         <div>
             <label for="bara3em">براعم</label>
-            <input type="number" id="bara3em" name="bara3em" min="0" value="0" onfocus="this.select()">
+            <input type="number" id="bara3em" name="bara3em" min="0" value="{{ activity[11] }}" onfocus="this.select()">
         </div>
     </div>
 
     <label>عدد غير الكشفيين (اختياري):</label>
-    <input type="number" name="non_scouts" min="0" value="0" onfocus="this.select()">
+    <input type="number" name="non_scouts" min="0" value="{{ activity[12] }}" onfocus="this.select()">
 
     <label>الفقرات المنفذة:</label>
     <div id="paragraphs"></div>
     <button type="button" class="add-btn" onclick="addParagraph()">+ إضافة فقرة</button>
 
     <label>التكلفة:</label>
-    <input type="number" name="cost" min="0" value="0" onfocus="this.select()">
-
-    <div class="upload-box">
-        <label for="files">ارفع الفواتير (اختياري):</label>
-        <input type="file" id="files" name="files[]" multiple>
-    </div>
+    <input type="number" name="cost" min="0" value="{{ activity[14] }}" onfocus="this.select()">
 
     <button type="submit" class="submit-btn">إرسال</button>
 </form>
@@ -692,7 +688,7 @@ input[type="file"]:hover {
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     // Initialize Choices.js
-    const groupChoice = new Choices("#group", { searchEnabled: true, placeholder: true, searchPlaceholderValue: "ابحث...", shouldSort: false});
+    const groupChoice = new Choices("#group", { searchEnabled: true, value: "{{ activity[2] }}", placeholder: true, searchPlaceholderValue: "ابحث...", shouldSort: false});
     const activityChoice = new Choices("#activity_type", { searchEnabled: true, shouldSort: false });
     const timeChoice = new Choices("#time", { searchEnabled: true, shouldSort: false });
     const occasionChoice = new Choices("#occasion", { searchEnabled: true, shouldSort: false });
@@ -733,8 +729,14 @@ document.addEventListener("DOMContentLoaded", function() {
     window.addParagraph = addParagraph;
     window.removeParagraph = removeParagraph;
 
-    // Start with one paragraph
-    addParagraph();
+    // Pre-fill paragraphs from activity[13]
+    {% if activity and activity[13] %}
+        {% for p in activity[13].split('\n') %}
+            addParagraph({{ p|tojson }});
+        {% endfor %}
+    {% else %}
+        addParagraph();
+    {% endif %}
 });
 </script>
 
