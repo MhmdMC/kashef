@@ -1,5 +1,5 @@
 from importlib.resources import files
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from datetime import datetime, timedelta
 import pytz
 import requests
@@ -116,6 +116,10 @@ def activities():
     group = request.values.get("group", "").strip() or None
     q = request.values.get("q", "").strip() or None
 
+    admin = request.values.get("admin", "").strip() or None
+    admin_filter = request.values.get("adminFilter", "").strip() or None
+
+
     # Build SQL with conditional WHERE clauses
     query = "SELECT * FROM activities"
     conditions = []
@@ -142,6 +146,13 @@ def activities():
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
 
+    if admin_filter and admin_filter != "الكل":
+        if admin_filter == "غير مضاف":
+            query += " AND checked = 0"
+        elif admin_filter == "مضاف":
+            query += " AND checked = 1"
+        elif admin_filter == "معدل بعد الإضافة":
+            query += " AND checked = -1"
     # Sort by created_at descending
     query += " ORDER BY created_at DESC"
 
@@ -161,7 +172,9 @@ def activities():
         current_start=start or "",
         current_end=end or "",
         current_group=group or "",
-        current_q=q or ""
+        current_q=q or "",
+        admin=admin,
+        admin_filter=admin_filter or ""
     )
 
 @app.route("/delete/<int:activity_id>", methods=["POST"])
@@ -219,13 +232,50 @@ def edit_activity(activity_id):
     # GET: fetch existing activity for prefill
     cursor.execute("SELECT * FROM activities WHERE id = ?", (activity_id,))
     activity = cursor.fetchone()
-    conn.close()
 
     if not activity:
+        conn.close()
         flash("النشاط غير موجود", "error")
         return redirect(url_for("activities"))
 
+    # mark as being edited (-1)
+    if activity[17] == 1:  # checked column
+        try:
+            cursor.execute("UPDATE activities SET checked = ?, checked_at = DATETIME('now','localtime') WHERE id = ?", (-1, activity_id))
+            conn.commit()
+            # re-fetch to include new checked state
+            cursor.execute("SELECT * FROM activities WHERE id = ?", (activity_id,))
+            activity = cursor.fetchone()
+        except Exception as e:
+            print("Failed to mark activity as editing:", e)
+        finally:
+            conn.close()
+
     return render_template("edit_activity.html", activity=activity)
+
+
+@app.route('/toggle_checked/<int:activity_id>', methods=['POST'])
+def toggle_checked(activity_id):
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT checked FROM activities WHERE id = ?", (activity_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return jsonify({"success": False, "error": "not_found"}), 404
+
+    current = row[0] if row[0] is not None else 0
+    new = 1 if current != 1 else 0
+    try:
+        cursor.execute("UPDATE activities SET checked = ?, checked_at = DATETIME('now','localtime') WHERE id = ?", (new, activity_id))
+        conn.commit()
+    except Exception as e:
+        conn.close()
+        print("Failed toggling checked:", e)
+        return jsonify({"success": False, "error": "db_error"}), 500
+
+    conn.close()
+    return jsonify({"success": True, "checked": new})
 
 @app.route("/uptime", methods=["GET", "POST"])
 def uptime():

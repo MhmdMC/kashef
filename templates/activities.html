@@ -109,6 +109,18 @@
       .site-nav a:hover {
         background: rgba(13, 110, 253, 0.08);
       }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #666;
+      }
+      #admin {
+        opacity: 0;
+      }
+      #adminFilter {
+        display: none;
+      }
     </style>
   </head>
   <body class="p-2 p-md-4">
@@ -192,6 +204,14 @@
                 value="{{ current_end }}"
               />
               <button type="submit" class="submit-btn">إذهب</button>
+              <input type="text" name="admin" id="admin" value="{{ admin }}">
+              <select id="adminFilter" name="adminFilter" class="form-select w-auto">
+                <option {% if admin_filter == "الكل" %}selected{% endif %}>الكل</option>
+                <option {% if admin_filter == "غير مضاف" %}selected{% endif %}>غير مضاف</option>
+                <option {% if admin_filter == "مضاف" %}selected{% endif %}>مضاف</option>
+                <option {% if admin_filter == "معدل بعد الإضافة" %}selected{% endif %}>معدل بعد الإضافة</option>
+              </select>
+
             </div>
           </div>
         </div>
@@ -201,6 +221,7 @@
       <table class="table table-striped table-hover">
         <thead class="table-dark">
           <tr>
+            <th>الحالة</th>
             <th>ID</th>
             <th>التاريخ</th>
             <th>المجموعة</th>
@@ -213,7 +234,12 @@
         </thead>
         <tbody>
           {% for act in activities %}
-          <tr>
+          <tr data-checked="{{ act[17] if act[17] is not none else 0 }}">
+            <td class="status-cell">
+              <button class="status-dot" data-id="{{ act[0] }}" aria-label="status">
+                <!-- dot color controlled by data-checked attribute -->
+              </button>
+            </td>
             <td>{{ act[0] }}</td>
             <td>{{ act[1] }}</td>
             <td>{{ act[2] }}</td>
@@ -250,7 +276,7 @@
           </tr>
 
           <tr>
-            <td colspan="7" class="p-0">
+            <td colspan="8" class="p-0">
               <div class="collapse" id="details{{ act[0] }}">
                 <div class="collapse-card">
                   <p><strong>المكان:</strong> {{ act[6] }}</p>
@@ -280,10 +306,94 @@
         </tbody>
       </table>
     </div>
-
+    <div class="footer">
+      فوج الإمام الباقر<sup>(ع)</sup> - تفاحتا - أمانة السّر
+    </div>
+    <div class="footer">جميع الحقوق محفوظة © 2025</div>
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      .status-dot{
+        width:18px;
+        height:18px;
+        border-radius:50%;
+        border:2px solid rgba(0,0,0,0.06);
+        background: #ccc;
+        display:inline-block;
+        vertical-align:middle;
+        cursor:pointer;
+      }
+      .status-dot.green{ background: #28a745; }
+      .status-dot.red{ background: #dc3545; }
+      .status-dot.yellow{ background: #ffc107; }
+      td.status-cell{ width:54px; }
+    </style>
     <script>
+      // status dots: color mapping and admin visibility
+      function setDotState(dot, checked){
+        dot.classList.remove('green','red','yellow');
+        if(checked === 1 || checked === '1') dot.classList.add('green');
+        else if(checked === 0 || checked === '0') dot.classList.add('red');
+        else if(checked === -1 || checked === '-1') dot.classList.add('yellow');
+        else dot.classList.add('red');
+        dot.dataset.checked = String(checked);
+      }
+
+      function initStatusDots(){
+        const dots = document.querySelectorAll('.status-dot');
+        dots.forEach(dot =>{
+          const id = dot.dataset.id;
+          const row = dot.closest('tr');
+          const checkedVal = row ? row.dataset.checked : null;
+          setDotState(dot, checkedVal !== null ? parseInt(checkedVal) : 0);
+
+          dot.addEventListener('click', async (e)=>{
+            // if not admin, ignore
+            const adminInput = document.getElementById('admin');
+            if(!adminInput || !adminInput.value.includes('admin')){
+              alert('صلاحيات المسؤول مطلوبة');
+              return;
+            }
+
+            try{
+              const res = await fetch(`/toggle_checked/${id}`, { method: 'POST' });
+              const data = await res.json();
+              if(data && data.success){
+                setDotState(dot, data.checked);
+                // also update row dataset so subsequent checks are consistent
+                if(row) row.dataset.checked = String(data.checked);
+              } else {
+                alert('فشل تغيير الحالة');
+              }
+            }catch(err){
+              console.error(err);
+              alert('خطأ في الشبكة');
+            }
+          });
+        });
+      }
+      document.addEventListener('DOMContentLoaded', ()=>{
+        // annotate each row with checked value from server-side data
+        document.querySelectorAll('tbody tr').forEach((tr, idx)=>{
+          // Each activity row corresponds to activities[idx]
+        });
+        initStatusDots();
+        // show/hide status column based on admin input
+        const adminInput = document.getElementById('admin');
+        function updateStatusVisibility(){
+          const show = adminInput && adminInput.value && adminInput.value.includes('admin');
+          document.querySelectorAll('.status-cell').forEach(td => td.style.display = show ? '' : 'none');
+          document.querySelectorAll('th')[0].style.display = show ? '' : 'none';
+
+          adminInput.style.display = show ? 'none' : 'inline-block';
+          document.getElementById('adminFilter').style.display = show ? 'inline-block' : 'none';
+        }
+        if(adminInput){
+          adminInput.addEventListener('input', updateStatusVisibility);
+          updateStatusVisibility();
+        }
+      });
+
       // Only allow one collapse open at a time
       const collapseElements = document.querySelectorAll(".collapse");
       collapseElements.forEach((el) => {
@@ -360,6 +470,7 @@
           document.querySelector("form").submit();
         });
 
+      
       // removed broken goCustom handler; form submit will send POST and server uses request.values
     </script>
   </body>

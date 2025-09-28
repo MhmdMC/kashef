@@ -130,7 +130,7 @@
 
       .upload-box {
         background: #fff;
-        padding: 25px 30px;
+        padding: 25px 25px;
         border-radius: 12px;
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
         text-align: center;
@@ -138,12 +138,13 @@
       }
 
       input[type="file"] {
-        margin: 15px auto;
+        margin: 15px auto 0 auto; /* auto centers horizontally */
         padding: 12px;
         border: 2px dashed #bbb;
         border-radius: 8px;
         cursor: pointer;
-        width: 100%;
+        display: block; /* makes margin auto work */
+        width: 90%; /* let it size to content */
         font-size: 16px;
       }
 
@@ -196,7 +197,7 @@
     <nav class="site-nav">
       <div class="nav-inner">
         <!-- index page: only show link to activities -->
-        <a href="{{ url_for('activities') }}">عرض الأنشطة</a>
+        <a href="{{ url_for('activities') }}">عرض الأنشطة وتعديلها</a>
       </div>
     </nav>
     <div class="container">
