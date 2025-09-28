@@ -1,4 +1,4 @@
-{% block groups %}
+{% macro groups() %}
 <option>فوج الامام الباقر (ع)/ تفاحتا</option>
 <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة البراعم</option>
 <option>فوج الامام الباقر (ع)/ تفاحتا/مرحلة الاشبال</option>
@@ -10,7 +10,7 @@
 <option>فوج الامام الباقر (ع)/ تفاحتا/امانة الموارد البشرية</option>
 <option>فوج الامام الباقر (ع)/ تفاحتا/امانة الاعلام</option>
 <option>فوج الامام الباقر (ع)/ تفاحتا/فرقة الخدمة المجتمعية</option>
-{% endblock %} {% block activity_types %}
+{% endmacro %} {% macro activity_types() %}
 <option>محاضرة</option>
 <option>تامين إحتياجات طبية</option>
 <option>حضور سيرك</option>
@@ -378,13 +378,13 @@
 <option>إعداد مادة إعلامية</option>
 <option>تنظيم حفل إنشادي خاص بالفرقة</option>
 <option>توضيب حصص تموينية</option>
-{% endblock %} {% block times %}
+{% endmacro %} {% macro times() %}
 <option>قبل الظهر</option>
 <option>بعد الظهر</option>
 <option>مساءً</option>
 <option>فجراً</option>
 <option>كامل اليوم</option>
-{% endblock %} {% block occasions %}
+{% endmacro %} {% macro occasions() %}
 <option>لا يوجد</option>
 <option>ولادة الرسول(ص) وحفيده الصادق(ع) (يوم القائد)</option>
 <option>شهادة الرسول(ص) وحفيديه المجتبى(ع) والرضا(ع)</option>
@@ -444,4 +444,4 @@
 <option>وفاة أم البنين (ع)</option>
 <option>عيد الجيش</option>
 <option>ذكرى شهادة الامين العام سيد شهداء الأمة</option>
-{% endblock %}
+{% endmacro %}

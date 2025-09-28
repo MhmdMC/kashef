@@ -1,3 +1,4 @@
+{% import "options.html" as opt %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
   <head>
@@ -214,8 +215,7 @@
           <input type="text" class="hidden-input" id="group_hidden" required />
           <select id="group" name="group">
             <option value="">اختر</option>
-            {% include "options.html" with context %} {% block groups %} {%
-            endblock %}
+            {{ opt.groups() }}
           </select>
         </div>
 
@@ -229,8 +229,7 @@
           />
           <select id="activity_type" name="activity_type">
             <option value="">اختر</option>
-            {% include "options.html" with context %} {% block activity_types %}
-            {% endblock %}
+            {{ opt.activity_types() }}
           </select>
         </div>
 
@@ -239,11 +238,7 @@
           <input type="text" class="hidden-input" id="time_hidden" required />
           <select id="time" name="time">
             <option value="">اختر</option>
-            <option>قبل الظهر</option>
-            <option>بعد الظهر</option>
-            <option>مساءً</option>
-            <option>فجراً</option>
-            <option>كامل اليوم</option>
+            {{ opt.times() }}
           </select>
         </div>
 
@@ -256,9 +251,7 @@
             required
           />
           <select id="occasion" name="occasion">
-            <option>لا يوجد</option>
-            {% include "options.html" with context %} {% block occasions %} {%
-            endblock %}
+            {{ opt.occasions() }}
           </select>
         </div>
 
