@@ -1,3 +1,4 @@
+from importlib.resources import files
 from flask import Flask, render_template, request, redirect, url_for, flash
 from datetime import datetime, timedelta
 import pytz
@@ -8,23 +9,19 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret")
 
-# 🔹 Telegram config
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 DB_PATH = "app.db"
 
-
-#def send_telegram_msg(message):
-#    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-#    data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
-#    requests.post(url, data=data)
-
-
 def get_conn():
     return sqlite3.connect(DB_PATH)
 
-# Function to insert a new activity
+def get_today():
+    ttz = pytz.timezone("Asia/Beirut")
+    return datetime.now(ttz).date()
+
 def insert_activity(data):
+    conn = None
     try:
         conn = get_conn()
         cursor = conn.cursor()
@@ -51,23 +48,31 @@ def insert_activity(data):
             data["cost"]
         ))
         conn.commit()
-        print("✅ Insert successful")
+        return cursor.lastrowid
     except Exception as e:
-        print("❌ DB Insert Error:", e)
+        print("DB Insert Error:", e, data)
+        return None
     finally:
-        conn.close()
-
-
+        if conn:
+            conn.close()
 
 # Function to update an existing activity TODO
 def update_activity(activity_id, data):
     ...
 
-def send_telegram_file(message, photo):
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto"
-    data = {"chat_id": CHAT_ID, "caption": message, "parse_mode": "HTML"}
-    files = {"photo": photo}
-    requests.post(url, data=data, files=files)
+def send_telegram_files(message, files):    
+    doc_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+    for f in files:
+        response = requests.post(
+            doc_url,
+            data={
+                "chat_id": CHAT_ID,
+                "caption": f"ID: {message}"
+            },
+            files={"document": (f.filename, f.stream)}
+        )
+        if response.status_code != 200:
+            print(f"Failed to send {f.filename}: {response.text}")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -87,81 +92,77 @@ def index():
             "occasion": request.form.get("occasion"),
             "paragraphs": request.form.getlist("paragraphs[]"),
             "cost": int(request.form.get("cost", 0))
-
         }
 
-        # Validation
-        if not form_data["paragraphs"] or all(not p.strip() for p in form_data["paragraphs"]):
-            flash("يجب إضافة فقرة واحدة على الأقل.", "error")
-            return redirect(url_for("index"))
-
-        # Insert the activity into the database
-        insert_activity(form_data)
-
-        ## Send the Telegram message
-        #msg = f"📌 <b>نموذج النشاط تم الإرسال</b>\n"
-        #for k, v in form_data.items():
-        #    if k == "الفقرات المنفذة":
-        #        paragraphs = "\n".join([f"- {p}" for p in v if p.strip()])
-        #        msg += f"{k}:\n{paragraphs}\n"
-        #    else:
-        #        msg += f"{k}: {v}\n"
-#
-        #send_telegram_msg(msg)
+        id = insert_activity(form_data)
 
         files = request.files.getlist("files[]")
-        if files and any(f.filename for f in files):
-            for file in files:
-                if file and file.filename:
-                    send_telegram_file(request.form.get("activity_type"), file)
+        send_telegram_files(id, files)
 
         return redirect(url_for("index"))
 
-    # Use Lebanon local date (Asia/Beirut)
-    ttz = pytz.timezone("Asia/Beirut")
-    lebanon_time = datetime.now(ttz).date()
-    return render_template("index.html", today=lebanon_time)
+    return render_template("index.html", today=get_today())
 
-@app.route("/activities")
+@app.route("/activities", methods=["GET", "POST"])
 def activities():
-    # Default date ranges
-    today = datetime.utcnow().date()
+    # Use Beirut local date defaults
+    today = get_today()
     three_days_ago = today - timedelta(days=3)
     seven_days_ago = today - timedelta(days=7)
 
-    # Query parameters
-    start_date = request.args.get("start")
-    end_date = request.args.get("end")
+    # Read filters from request.values so POST and GET both work
+    start = request.values.get("start", "").strip() or None
+    end = request.values.get("end", "").strip() or None
+    group = request.values.get("group", "").strip() or None
+    q = request.values.get("q", "").strip() or None
 
-    if start_date and end_date:
-        start = start_date
-        end = end_date
-    else:
-        start = None
-        end = None
-
-    # Build query
+    # Build SQL with conditional WHERE clauses
     query = "SELECT * FROM activities"
-    params = ()
+    conditions = []
+    params = []
+
     if start and end:
-        query += " WHERE date BETWEEN ? AND ? ORDER BY date DESC"
-        params = (start, end)
-    else:
-        query += " ORDER BY date DESC"
+        conditions.append("date BETWEEN ? AND ?")
+        params.extend([start, end])
+
+    if group and group != "كل الفرق":
+        conditions.append("group_name = ?")
+        params.append(group)
+
+    if q:
+        # treat q as subtext (case-insensitive) across several text columns, or exact id match
+        try:
+            q_id = int(q)
+        except Exception:
+            q_id = -1
+        q_like = f"%{q.lower()}%"
+        conditions.append("(id = ? OR lower(group_name) LIKE ? OR lower(activity_type) LIKE ? OR lower(place) LIKE ? OR lower(occasion) LIKE ? OR lower(paragraphs) LIKE ?)")
+        params.extend([q_id, q_like, q_like, q_like, q_like, q_like])
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+        print(query, params)
+
+    # Sort by created_at descending
+    query += " ORDER BY created_at DESC"
 
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute(query, params)
+    cursor.execute(query, tuple(params))
     activities_list = cursor.fetchall()
     conn.close()
 
-    # Pass pre-calculated dates to template for buttons
+    # Pass current filter values back to template so inputs keep their values
     return render_template(
         "activities.html",
         activities=activities_list,
-        today=today.strftime('%Y-%m-%d'),
-        three_days_start=three_days_ago.strftime('%Y-%m-%d'),
-        seven_days_start=seven_days_ago.strftime('%Y-%m-%d')
+        today=today.strftime("%Y-%m-%d"),
+        three_days_start=three_days_ago.strftime("%Y-%m-%d"),
+        seven_days_start=seven_days_ago.strftime("%Y-%m-%d"),
+        current_start=start or "",
+        current_end=end or "",
+        current_group=group or "",
+        current_q=q or ""
     )
 
 @app.route("/delete/<int:activity_id>", methods=["POST"])
