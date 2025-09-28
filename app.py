@@ -25,12 +25,13 @@ def insert_activity(data):
     try:
         conn = get_conn()
         cursor = conn.cursor()
+        created_at = datetime.now(pytz.timezone("Asia/Beirut")).strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute("""
             INSERT INTO activities (
                 date, group_name, activity_type, time, occasion, place,
                 leaders_count, jawele_count, kashefe_count, ashbele_count,
-                bara3em_count, non_scouts_count, paragraphs, cost
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                bara3em_count, non_scouts_count, paragraphs, cost, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             data["date"],
             data["group"],
@@ -45,7 +46,8 @@ def insert_activity(data):
             data["bara3em_count"],
             data["non_scouts_count"],
             "\n".join(data["paragraphs"]),
-            data["cost"]
+            data["cost"],
+            created_at
         ))
         conn.commit()
         return cursor.lastrowid
@@ -212,16 +214,19 @@ def edit_activity(activity_id):
         }
 
         # Update DB
+        updated_at = datetime.now(pytz.timezone("Asia/Beirut")).strftime("%Y-%m-%d %H:%M:%S")
+
         cursor.execute("""
             UPDATE activities
             SET date=?, group_name=?, activity_type=?, place=?, time=?, 
                 leaders_count=?, jawele_count=?, kashefe_count=?, ashbele_count=?, bara3em_count=?, 
-                non_scouts_count=?, occasion=?, paragraphs=?, cost=?, updated_at=DATETIME('now','localtime')
+                non_scouts_count=?, occasion=?, paragraphs=?, cost=?, updated_at=?
             WHERE id=?
         """, (
             data["date"], data["group"], data["activity_type"], data["place"], data["time"],
             data["leaders_count"], data["jawele_count"], data["kashefe_count"], data["ashbele_count"], data["bara3em_count"],
             data["non_scouts_count"], data["occasion"], "\n".join(data["paragraphs"]), data["cost"],
+            updated_at,
             activity_id
         ))
         conn.commit()
@@ -240,8 +245,9 @@ def edit_activity(activity_id):
 
     # mark as being edited (-1)
     if activity[17] == 1:  # checked column
+        checked_at = datetime.now(pytz.timezone("Asia/Beirut")).strftime("%Y-%m-%d %H:%M:%S")
         try:
-            cursor.execute("UPDATE activities SET checked = ?, checked_at = DATETIME('now','localtime') WHERE id = ?", (-1, activity_id))
+            cursor.execute("UPDATE activities SET checked = ?, checked_at = ? WHERE id = ?", (-1, checked_at, activity_id))
             conn.commit()
             # re-fetch to include new checked state
             cursor.execute("SELECT * FROM activities WHERE id = ?", (activity_id,))
@@ -266,12 +272,16 @@ def toggle_checked(activity_id):
 
     current = row[0] if row[0] is not None else 0
     new = 1 if current != 1 else 0
+    if new == 1:
+        checked_at = datetime.now(pytz.timezone("Asia/Beirut")).strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        checked_at = None
     try:
-        cursor.execute("UPDATE activities SET checked = ?, checked_at = DATETIME('now','localtime') WHERE id = ?", (new, activity_id))
+        cursor.execute("UPDATE activities SET checked = ?, checked_at = ? WHERE id = ?", (new, checked_at, activity_id))
         conn.commit()
     except Exception as e:
         conn.close()
-        print("Failed toggling checked:", e)
+        print("Failed toggling checked:", e, activity_id)
         return jsonify({"success": False, "error": "db_error"}), 500
 
     conn.close()
