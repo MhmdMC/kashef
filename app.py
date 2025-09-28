@@ -141,7 +141,6 @@ def activities():
 
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
-        print(query, params)
 
     # Sort by created_at descending
     query += " ORDER BY created_at DESC"
@@ -220,7 +219,6 @@ def edit_activity(activity_id):
     # GET: fetch existing activity for prefill
     cursor.execute("SELECT * FROM activities WHERE id = ?", (activity_id,))
     activity = cursor.fetchone()
-    print(activity)
     conn.close()
 
     if not activity:
