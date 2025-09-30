@@ -48,6 +48,7 @@ def insert_activity(data):
             data["cost"],
             created_at
         ))
+        print(data)
         conn.commit()
         return cursor.lastrowid
     except Exception as e:
@@ -84,12 +85,12 @@ def index():
             "activity_type": request.form.get("activity_type"),
             "place": request.form.get("place"),
             "time": request.form.get("time"),
-            "leaders_count": int(request.form.get("leaders_count", 0)),
-            "jawele_count": int(request.form.get("jawele_count", 0)),
-            "kashefe_count": int(request.form.get("kashefe_count", 0)),
-            "ashbele_count": int(request.form.get("ashbele_count", 0)),
-            "bara3em_count": int(request.form.get("bara3em_count", 0)),
-            "non_scouts_count": int(request.form.get("non_scouts_count", 0)),
+            "leaders_count": int(request.form.get("leaders", 0)),
+            "jawele_count": int(request.form.get("jawele", 0)),
+            "kashefe_count": int(request.form.get("kashefe", 0)),
+            "ashbele_count": int(request.form.get("ashbele", 0)),
+            "bara3em_count": int(request.form.get("bara3em", 0)),
+            "non_scouts_count": int(request.form.get("non_scouts", 0)),
             "occasion": request.form.get("occasion"),
             "paragraphs": request.form.getlist("paragraphs[]"),
             "cost": int(request.form.get("cost", 0))
@@ -98,7 +99,8 @@ def index():
         id = insert_activity(form_data)
 
         files = request.files.getlist("files[]")
-        send_telegram_files(id, files)
+        if files[0].filename:
+            send_telegram_files(id, files)
 
         return redirect(url_for("index"))
 
@@ -201,12 +203,12 @@ def edit_activity(activity_id):
             "activity_type": request.form.get("activity_type"),
             "place": request.form.get("place"),
             "time": request.form.get("time"),
-            "leaders_count": int(request.form.get("leaders_count", 0)),
-            "jawele_count": int(request.form.get("jawele_count", 0)),
-            "kashefe_count": int(request.form.get("kashefe_count", 0)),
-            "ashbele_count": int(request.form.get("ashbele_count", 0)),
-            "bara3em_count": int(request.form.get("bara3em_count", 0)),
-            "non_scouts_count": int(request.form.get("non_scouts_count", 0)),
+            "leaders_count": int(request.form.get("leaders", 0)),
+            "jawele_count": int(request.form.get("jawele", 0)),
+            "kashefe_count": int(request.form.get("kashefe", 0)),
+            "ashbele_count": int(request.form.get("ashbele", 0)),
+            "bara3em_count": int(request.form.get("bara3em", 0)),
+            "non_scouts_count": int(request.form.get("non_scouts", 0)),
             "occasion": request.form.get("occasion"),
             "paragraphs": request.form.getlist("paragraphs[]"),
             "cost": int(request.form.get("cost", 0))
